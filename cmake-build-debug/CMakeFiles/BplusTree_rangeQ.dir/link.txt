@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/BplusTree_rangeQ.dir/main.cpp.o  -o BplusTree_rangeQ 
