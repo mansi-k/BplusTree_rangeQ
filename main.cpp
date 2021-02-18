@@ -16,36 +16,56 @@ typedef struct Node{
 Node* ROOT = nullptr;
 
 void insertNonLeaf(ll val, Node* cur_node, Node* child_node) {
+    cout << "val" << val << endl;
+    cout << "child_node:" << "size:" << child_node->keys.size() << " ";
+    for(auto it=child_node->keys.begin();it!=child_node->keys.end();it++)
+        cout << *it <<"...";
+    cout << endl;
+    cout << "current_node:"  "size:" << (cur_node==NULL) << endl;
+    for(auto it=cur_node->keys.begin();it!=cur_node->keys.end();it++)
+        cout << *it <<"..." << endl;
+    cout << endl;
     if(cur_node->keys.size() < MAX_KEYS) {
         int i=0;
-        while (i < cur_node->keys.size() && cur_node->keys[i] < val) {
+        while (i < cur_node->keys.size() && cur_node->keys[i] <= val) {
             i++;
         }
+        cout << "here" << val << endl;
         cur_node->keys.insert(cur_node->keys.begin()+i,val);
         cur_node->child_ptrs.insert(cur_node->child_ptrs.begin()+i+1,child_node);
-        cur_node->child_ptrs.pop_back(); // popping last nullptr
+//        cur_node->child_ptrs.pop_back(); // popping last nullptr
     }
     else {
+        cout << "one" << endl;
         vector<ll> cur_keys = cur_node->keys;
         vector<Node*> cur_ptrs = cur_node->child_ptrs;
         int i=0;
         while (i < cur_keys.size() && cur_keys[i] < val) {
             i++;
         }
+
         cur_keys.insert(cur_keys.begin()+i,val);
         cur_ptrs.insert(cur_ptrs.begin()+i+1,child_node);
+
         int n_left = (MAX_KEYS+1)/2;
         int n_right = MAX_KEYS+1 - n_left;
         cur_node->keys = vector<ll>(cur_keys.begin(),cur_keys.begin()+n_left);
-        cur_node->child_ptrs = vector<Node*>(cur_ptrs.begin(),cur_ptrs.begin()+n_left);
+        cur_node->child_ptrs = vector<Node*>(cur_ptrs.begin(),cur_ptrs.begin()+n_left+1);
         cur_node->child_ptrs.push_back(nullptr);
         Node* new_nonleaf = new Node;
         new_nonleaf->leaf_flag = false;
-        new_nonleaf->keys = vector<ll>(cur_keys.begin()+n_left,cur_keys.end());
-        new_nonleaf->child_ptrs = vector<Node*>(cur_ptrs.begin()+n_left,cur_ptrs.end());
+        new_nonleaf->keys = vector<ll>(cur_keys.begin()+n_left+1,cur_keys.end());
+        new_nonleaf->child_ptrs = vector<Node*>(cur_ptrs.begin()+n_left+1,cur_ptrs.end());
+        cout << "New:";
+        for(auto it=new_nonleaf->keys.begin();it!=new_nonleaf->keys.end();it++)
+            cout << *it <<"...";
+        cout << endl;
         if (cur_node == ROOT) {
             Node* new_root = new Node;
-            new_root->keys.push_back(new_nonleaf->keys[0]);
+            new_root->keys.push_back(cur_keys[n_left]);
+//            cur_node->keys = vector<ll>(cur_keys.begin(),cur_keys.begin()+n_left);
+//            cur_node->child_ptrs = vector<Node*>(cur_ptrs.begin(),cur_ptrs.begin()+n_left+1);
+//            cur_node->child_ptrs.push_back(nullptr);
             new_root->child_ptrs[0] = cur_node;
             new_root->child_ptrs[1] = new_nonleaf;
             new_root->leaf_flag = false;
@@ -54,7 +74,7 @@ void insertNonLeaf(ll val, Node* cur_node, Node* child_node) {
             new_nonleaf->parent = ROOT;
         }
         else {
-            insertNonLeaf(new_nonleaf->keys[0],cur_node->parent,new_nonleaf);
+            insertNonLeaf(cur_keys[n_left],cur_node->parent,new_nonleaf);
         }
     }
 }
@@ -70,7 +90,7 @@ void insertLeaf(ll val) {
         while (!cur_node->leaf_flag) {
             parent = cur_node;
             for(int i=0;i<cur_node->keys.size();i++) {
-                if(cur_node->keys[i] > val) {
+                if(cur_node->keys[i] >= val) {
                     cur_node = cur_node->child_ptrs[i];
                     break;
                 }
@@ -117,6 +137,21 @@ void insertLeaf(ll val) {
     }
 }
 
+void print_tree(Node* root = ROOT) {
+    if(root == NULL)
+        return;
+    if(!root->leaf_flag) {
+        for(int i=0; i<root->child_ptrs.size(); i++)
+            print_tree(root->child_ptrs[i]);
+    }
+    else
+        cout << "Leaf:";
+    cout << "|";
+    for (int i=0; i<root->keys.size(); i++) {
+        cout << root->keys[i] << "|";
+    }
+    cout << endl;
+}
 
 int main(int argc, char const *argv[]) {
     if(argc < 2) {
@@ -128,10 +163,10 @@ int main(int argc, char const *argv[]) {
     ifstream in_file(input_file);
     string line;
     ll x, y;
-    while(getline(in_file, line))
-    {
-        if(line.find("INSERT") != string::npos)
-        {
+    cout << "b4 while" << endl;
+    while(getline(in_file, line)) {
+        cout << line << endl;
+        if(line.find("INSERT") != string::npos) {
             istringstream (line.substr(7)) >> x;
             insertLeaf(x);
         }
@@ -155,6 +190,7 @@ int main(int argc, char const *argv[]) {
 //        }
         else
             cout << "Invalid command : " << line;
+        print_tree();
     }
     return 0;
 }
