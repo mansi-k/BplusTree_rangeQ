@@ -30,7 +30,7 @@ void insertNonLeaf(ll val, Node* cur_node, Node* child_node) {
         while(i < cur_node->keys.size() && cur_node->keys[i] <= val) {
             i++;
         }
-        cout << "here" << val << endl;
+//        cout << "here" << val << endl;
         cur_node->keys.insert(cur_node->keys.begin()+i,val);
         cur_node->child_ptrs.insert(cur_node->child_ptrs.begin()+i+1,child_node);
         child_node->parent = cur_node;
@@ -64,10 +64,10 @@ void insertNonLeaf(ll val, Node* cur_node, Node* child_node) {
         for(auto jt=new_nonleaf->child_ptrs.begin();jt!=new_nonleaf->child_ptrs.end() && *jt!=nullptr ;jt++) {
             (*jt)->parent = new_nonleaf;
         }
-        cout << "New:";
-        for(auto it=new_nonleaf->keys.begin();it!=new_nonleaf->keys.end();it++)
-            cout << *it <<"...";
-        cout << endl;
+//        cout << "New:";
+//        for(auto it=new_nonleaf->keys.begin();it!=new_nonleaf->keys.end();it++)
+//            cout << *it <<"...";
+//        cout << endl;
         if (cur_node == ROOT) {
             Node* new_root = new Node;
             new_root->keys.push_back(cur_keys[n_left]);
@@ -124,6 +124,7 @@ void insertLeaf(ll val) {
             cur_node->keys = vector<ll>(cur_keys.begin(),cur_keys.begin()+n_left);
             Node* right_leaf = new Node;
             right_leaf->keys = vector<ll>(cur_keys.begin()+n_left,cur_keys.end());
+            right_leaf->next = cur_node->next;
             cur_node->next = right_leaf;
             if(cur_node == ROOT) {
                 Node* new_root = new Node;
@@ -139,6 +140,96 @@ void insertLeaf(ll val) {
                 insertNonLeaf(right_leaf->keys[0], parent, right_leaf);
             }
         }
+    }
+}
+
+bool search(ll val) {
+    if (!ROOT) {
+        return false;
+    }
+    else {
+        Node *cur_node = ROOT;
+        while (!cur_node->leaf_flag) {
+            for (int i=0; i<cur_node->keys.size(); i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (cur_node->keys[i] == val) {
+                    return true;
+                }
+                if (cur_node->keys[i] > val) {
+                    cur_node = cur_node->child_ptrs[i];
+                    break;
+                }
+                if (i == cur_node->keys.size() - 1) {
+                    cur_node = cur_node->child_ptrs[i + 1];
+                    break;
+                }
+            }
+        }
+//        cout << endl;
+        if (!cur_node) {
+            return false;
+        }
+        while (cur_node->next) {
+            for (int i = 0; i < cur_node->keys.size() && val >= cur_node->keys[i]; i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (cur_node->keys[i] == val) {
+                    return true;
+                }
+            }
+            cur_node = cur_node->next;
+        }
+        for (int i = 0; i < cur_node->keys.size() && val >= cur_node->keys[i]; i++) {
+//            cout << cur_node->keys[i] << ",";
+            if (cur_node->keys[i] == val) {
+                return true;
+            }
+        }
+//        cout << endl;
+        return false;
+    }
+}
+
+ll count(ll val) {
+    if (!ROOT) {
+        return false;
+    }
+    else {
+        ll c = 0;
+        Node *cur_node = ROOT;
+        while (!cur_node->leaf_flag) {
+            for (int i=0; i<cur_node->keys.size(); i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (cur_node->keys[i] >= val) {
+                    cur_node = cur_node->child_ptrs[i];
+                    break;
+                }
+                if (i == cur_node->keys.size() - 1) {
+                    cur_node = cur_node->child_ptrs[i + 1];
+                    break;
+                }
+            }
+        }
+//        cout << endl;
+        if (!cur_node) {
+            return c;
+        }
+        while (cur_node->next) {
+            for (int i=0; i<cur_node->keys.size() && val>=cur_node->keys[i]; i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (cur_node->keys[i] == val) {
+                    c++;
+                }
+            }
+            cur_node = cur_node->next;
+        }
+        for (int i = 0; i < cur_node->keys.size() && val >= cur_node->keys[i]; i++) {
+//            cout << cur_node->keys[i] << ",";
+            if (cur_node->keys[i] == val) {
+                c++;
+            }
+        }
+//        cout << endl;
+        return c;
     }
 }
 
@@ -165,6 +256,28 @@ void print_tree(Node* root = ROOT) {
     cout << endl;
 }
 
+void print_allkeys() {
+    if (!ROOT) {
+        cout << "Empty" << endl;
+    }
+    else {
+        Node *cur_node = ROOT;
+        while (!cur_node->leaf_flag) {
+            cur_node = cur_node->child_ptrs[0];
+        }
+        while (cur_node->next) {
+            for (int i=0; i<cur_node->keys.size(); i++) {
+                cout << cur_node->keys[i] << " ";
+            }
+            cur_node = cur_node->next;
+        }
+        for (int i=0; i<cur_node->keys.size(); i++) {
+            cout << cur_node->keys[i] << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main(int argc, char const *argv[]) {
     if(argc < 2) {
         cout << "Provide input file" << endl;
@@ -182,20 +295,19 @@ int main(int argc, char const *argv[]) {
         if(line.find("INSERT") != string::npos) {
             istringstream (line.substr(7)) >> x;
             insertLeaf(x);
+            print_allkeys();
         }
-//        else if(line.find("FIND") != string::npos)
-//        {
-//            istringstream (line.substr(5)) >> x;
-//            if(find(lookup(root, x, false), x))
-//                cout << "YES" << endl;
-//            else
-//                cout << "NO" << endl;
-//        }
-//        else if(line.find("COUNT") != string::npos)
-//        {
-//            istringstream (line.substr(6)) >> x;
-//            cout << count(lookup(root, x, false), x) << endl;
-//        }
+        else if(line.find("FIND") != string::npos) {
+            istringstream(line.substr(5)) >> x;
+            if(search(x))
+                cout << "YES" << endl;
+            else
+                cout << "NO" << endl;
+        }
+        else if(line.find("COUNT") != string::npos) {
+            istringstream (line.substr(6)) >> x;
+            cout << count(x) << endl;
+        }
 //        else if(line.find("RANGE") != string::npos)
 //        {
 //            istringstream (line.substr(6)) >> x >> y;
@@ -203,7 +315,7 @@ int main(int argc, char const *argv[]) {
 //        }
         else
             cout << "Invalid command : " << line;
-        print_tree();
     }
+    print_tree();
     return 0;
 }
