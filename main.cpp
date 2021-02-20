@@ -1,5 +1,7 @@
 #include <iostream>
-#include <bits/stdc++.h>
+#include <vector>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 #define MAX_KEYS 2
@@ -233,6 +235,49 @@ ll count(ll val) {
     }
 }
 
+ll range(ll val1, ll val2) {
+    if (!ROOT) {
+        return false;
+    }
+    else {
+        ll c = 0;
+        Node *cur_node = ROOT;
+        while (!cur_node->leaf_flag) {
+            for (int i=0; i<cur_node->keys.size(); i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (cur_node->keys[i] >= val1) {
+                    cur_node = cur_node->child_ptrs[i];
+                    break;
+                }
+                if (i == cur_node->keys.size() - 1) {
+                    cur_node = cur_node->child_ptrs[i + 1];
+                    break;
+                }
+            }
+        }
+//        cout << endl;
+        if (!cur_node) {
+            cout << "null" << endl;
+            return c;
+        }
+        while (cur_node->next) {
+            for (int i=0; i<cur_node->keys.size() && val2>=cur_node->keys[i]; i++) {
+//                cout << cur_node->keys[i] << ",";
+                if (val1 <= cur_node->keys[i])
+                    c++;
+            }
+            cur_node = cur_node->next;
+        }
+        for (int i=0; i<cur_node->keys.size() && val2>=cur_node->keys[i]; i++) {
+//            cout << cur_node->keys[i] << ",";
+            if (val1 <= cur_node->keys[i])
+                c++;
+        }
+//        cout << endl;
+        return c;
+    }
+}
+
 void print_tree(Node* root = ROOT) {
     if(root == NULL)
         return;
@@ -288,14 +333,12 @@ int main(int argc, char const *argv[]) {
     ifstream in_file(input_file);
     string line;
     ll x, y;
-//    cout << "b4 while" << endl;
     while(getline(in_file, line)) {
-        cout << "*****************************" << endl;
-        cout << line << endl;
+//        cout << line << endl;
         if(line.find("INSERT") != string::npos) {
             istringstream (line.substr(7)) >> x;
             insertLeaf(x);
-            print_allkeys();
+//            print_allkeys();
         }
         else if(line.find("FIND") != string::npos) {
             istringstream(line.substr(5)) >> x;
@@ -308,14 +351,17 @@ int main(int argc, char const *argv[]) {
             istringstream (line.substr(6)) >> x;
             cout << count(x) << endl;
         }
-//        else if(line.find("RANGE") != string::npos)
-//        {
-//            istringstream (line.substr(6)) >> x >> y;
-//            range(lookup(root, x, false), x, y);
-//        }
+        else if(line.find("RANGE") != string::npos) {
+            istringstream (line.substr(6)) >> x >> y;
+            if(x>y)
+                swap(x,y);
+//            cout << x << "," << y << endl;
+            cout << range(x, y) << endl;
+        }
         else
             cout << "Invalid command : " << line;
+//        cout << "*****************************" << endl;
     }
-    print_tree();
+//    print_tree();
     return 0;
 }
