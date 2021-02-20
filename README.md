@@ -16,5 +16,5 @@ Each tree node stores: MAX_KEYS no. of keys, MAX_KEYS+1 no. of child-node pointe
 Input files should be in the same folder.  
 Output file would be created in the same folder.  
 Input file should be in the same format as given in the doc: keywords in capital letters, each query on a new line, each element in a query has 1 space in between.  
-Here order means max np. of keys in any node.  
+Here order means max no. of keys in any node (default order=2).  
 Code tested for only order=2 (as given in doc) though implemented for other orders too.  
