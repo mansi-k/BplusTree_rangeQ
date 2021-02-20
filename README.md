@@ -10,7 +10,7 @@ Queries implemented: INSERT, FIND, COUNT, RANGE.
 Call print_tree() function to see the structure of the tree.  
 Call print_allkeys() function to see all values inserted in the tree.  
 To change the order (max no. of keys in a node) of the tree (order >= 2), change the MAX_KEYS definition (though not well tested for order!=2).  
-Each tree node stores: MAX_KEYS no. of keys, MAX_KEYS+1 no. of child-node pointers, pointer to the parent-node, pointer to the next (right) sibiling-node (only for leaf nodes) and a is_leaf flag.  
+Each tree node stores: MAX_KEYS no. of keys, MAX_KEYS+1 no. of child-node pointers, pointer to the parent-node, pointer to the next (right) sibiling-node (only for leaf nodes) and an is_leaf flag.  
 
 ## Assumptions
 Input files should be in the same folder.  
